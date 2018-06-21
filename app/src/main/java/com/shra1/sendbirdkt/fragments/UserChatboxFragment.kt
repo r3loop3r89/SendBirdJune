@@ -2,9 +2,12 @@ package com.shra1.sendbirdkt.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -19,7 +22,6 @@ import com.shra1.sendbirdkt.R
 import com.shra1.sendbirdkt.SharedPreferenceStorage
 import com.shra1.sendbirdkt.adapters.ChatMessagesRVAdapter
 import com.shra1.sendbirdkt.utils.Constants.Companion.ADMIN
-import com.shra1.sendbirdkt.utils.Utils
 import com.shra1.sendbirdkt.utils.Utils.Companion.showToast
 
 class UserChatboxFragment : Fragment() {
@@ -31,7 +33,7 @@ class UserChatboxFragment : Fragment() {
     lateinit var mCtx: Context
     lateinit var pbFUCProgressBar: ProgressBar
     var myGroupChannel: GroupChannel? = null
-     var previousMessageListQuery: PreviousMessageListQuery? =null
+    var previousMessageListQuery: PreviousMessageListQuery? = null
     lateinit var messages: ArrayList<UserMessage>
     lateinit var chatMessagesRVAdapter: ChatMessagesRVAdapter
 
@@ -50,13 +52,34 @@ class UserChatboxFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.fragment_user_chatbox, container, false)
         mCtx = container!!.context
+
         initViews(v)
+
+        etFUCMessage.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                Handler().postDelayed({
+                    myGroupChannel?.endTyping()
+                }, 1000)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if((s?.equals(" "))==false) {
+                    myGroupChannel?.startTyping()
+                }
+            }
+
+        })
 
         myActivity = (activity as MainActivity)
 
         myActivity.setToolbarTitle(SharedPreferenceStorage.getInstance(mCtx).getUser() + " chatting with Admin")
 
-        //CREATE GROUP CHANNEL
+        //STEPS
+        //(1) CREATE GROUP CHANNEL
         pbFUCProgressBar.visibility = VISIBLE
         GroupChannel.createChannelWithUserIds(arrayListOf(ADMIN),
                 true,
@@ -71,7 +94,7 @@ class UserChatboxFragment : Fragment() {
                             myGroupChannel = channel
                         }
 
-                        //LOAD HISTORY
+                        //(2) LOAD HISTORY
                         if (previousMessageListQuery == null) {
                             previousMessageListQuery = myGroupChannel!!.createPreviousMessageListQuery()
 
@@ -92,11 +115,12 @@ class UserChatboxFragment : Fragment() {
                                     chatMessagesRVAdapter = ChatMessagesRVAdapter(mCtx, messages)
                                     rvFUCChatMessages.adapter = chatMessagesRVAdapter
                                     pbFUCProgressBar.visibility = GONE
+                                    etFUCMessage.isEnabled=true
                                 }
                             })
                         }
 
-                        //SETUP CHANNEL HANDLER
+                        //(3) SETUP CHANNEL HANDLER
                         SendBird.addChannelHandler(
                                 SharedPreferenceStorage.getInstance(mCtx).getUser(),
                                 object : SendBird.ChannelHandler() {
@@ -114,17 +138,22 @@ class UserChatboxFragment : Fragment() {
 
         bFUCSend.setOnClickListener {
             var message = etFUCMessage.text.toString().trim()
-            myGroupChannel!!.sendUserMessage(message, object : BaseChannel.SendUserMessageHandler{
+            pbFUCProgressBar.visibility= VISIBLE
+            myGroupChannel!!.sendUserMessage(message, object : BaseChannel.SendUserMessageHandler {
                 override fun onSent(um: UserMessage?, e: SendBirdException?) {
-                    if (e!=null){
+                    pbFUCProgressBar.visibility= GONE
+                    if (e != null) {
                         e.printStackTrace()
                         return
                     }
                     chatMessagesRVAdapter.addMessage(um!!)
-                    Utils.showToast(myActivity, "Sent")
+                    //Utils.showToast(myActivity, "Sent")
+                    etFUCMessage.setText("")
                 }
             })
         }
+
+
 
         return v
     }
@@ -141,7 +170,7 @@ class UserChatboxFragment : Fragment() {
         SendBird.disconnect {
             showToast(myActivity, "Sendbird disconnected")
         }
-        INSTANCE=null
+        INSTANCE = null
         super.onDestroy()
     }
 

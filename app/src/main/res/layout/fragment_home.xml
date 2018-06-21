@@ -44,15 +44,15 @@
                 android:padding="40dp"
                 android:text="User" />
 
-            <ProgressBar
-                android:id="@+id/pbFHProgressBar"
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/pbFHProgressBar"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
 </LinearLayout>

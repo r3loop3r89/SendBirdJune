@@ -12,8 +12,9 @@
             android:id="@+id/incomingMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#b60"
             android:padding="10dp"
+            android:background="@drawable/outgoing_chat_bg"
+            android:layout_marginTop="5dp"
             android:text="incoming text"
             android:textColor="@color/colorWhite" />
     </LinearLayout>
@@ -27,7 +28,8 @@
             android:id="@+id/outgoingMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#4d0"
+            android:background="@drawable/incoming_chat_bg"
+            android:layout_marginTop="5dp"
             android:padding="10dp"
             android:text="outgoing text"
             android:textColor="@color/colorWhite" />

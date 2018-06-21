@@ -8,14 +8,14 @@ import com.shra1.sendbirdkt.SharedPreferenceStorage
 
 class SendBirdConnect {
 
-    constructor(context: Context, c: SendBirdConnectCallbacks) {
-        connect(context, c)
+    constructor(context: Context,connectedAs:String, c: SendBirdConnectCallbacks) {
+        connect(context,connectedAs, c)
     }
 
-    fun connect(context: Context, c: SendBirdConnectCallbacks) {
+    fun connect(context: Context,connectedAs:String, c: SendBirdConnectCallbacks) {
         c.start()
         SendBird.connect(
-                SharedPreferenceStorage.getInstance(context).getUser(),
+                connectedAs,
                 object : SendBird.ConnectHandler {
                     override fun onConnected(user: User?, e: SendBirdException?) {
                         c.end()

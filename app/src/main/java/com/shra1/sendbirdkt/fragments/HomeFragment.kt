@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
@@ -16,6 +17,7 @@ import com.shra1.sendbirdkt.R
 import com.shra1.sendbirdkt.SharedPreferenceStorage
 import com.shra1.sendbirdkt.sendbird.SendBirdConnect
 import com.shra1.sendbirdkt.sendbird.SendBirdConnectCallbacks
+import com.shra1.sendbirdkt.utils.Constants.Companion.ADMIN
 import com.shra1.sendbirdkt.utils.Utils
 
 class HomeFragment : Fragment() {
@@ -62,7 +64,7 @@ class HomeFragment : Fragment() {
             } else {
                 //let to open user fragment
                 //connect to send bird and then only switch fragment
-                SendBirdConnect(mCtx, object : SendBirdConnectCallbacks {
+                SendBirdConnect(mCtx, SharedPreferenceStorage.getInstance(mCtx).getUser(), object : SendBirdConnectCallbacks {
                     override fun start() {
                         pbFHProgressBar.visibility = VISIBLE
                     }
@@ -77,6 +79,24 @@ class HomeFragment : Fragment() {
                 })
 
             }
+        }
+
+        bFHLoginAsAdmin.setOnClickListener {
+            SendBirdConnect(mCtx, ADMIN, object : SendBirdConnectCallbacks {
+
+                override fun start() {
+                    pbFHProgressBar.visibility = VISIBLE
+                }
+
+                override fun connectionSuccessfull(user: User?) {
+                    myActivity.changeFragment(AdminUsersListFragment.getInstance(), true)
+                }
+
+                override fun end() {
+                    pbFHProgressBar.visibility = GONE
+                }
+
+            })
         }
 
         return v;
